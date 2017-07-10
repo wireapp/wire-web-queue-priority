@@ -38,6 +38,16 @@ export class RunQueue<I, P> {
     return this.queue[this.queue.length - 1].item;
   }
 
+  private run(): Promise<I> {
+    const item = this.first;
+
+    return Promise.resolve(item)
+      .then(() => {
+        const queueItem = this.queue.shift();
+        return queueItem.item;
+      });
+  }
+
   public add(item: I, priority: P = <any>Priority.MEDIUM): void {
     this.queue.push({item, priority});
     this.queue.sort(this.comparator);

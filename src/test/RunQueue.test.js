@@ -28,4 +28,20 @@ describe('RunQueue', () => {
       done();
     });
   });
+
+  describe('"run"', () => {
+    it('executes an item from the queue', (done) => {
+      queue.add('ape');
+      queue.add('cat');
+      queue.add('dog');
+      queue.add('zebra');
+      queue.run().then((item) => {
+        expect(queue.size).toBe(3);
+        expect(queue.first).toBe('cat');
+        expect(queue.last).toBe('zebra');
+        expect(item).toBe('ape');
+        done();
+      });
+    });
+  });
 });
