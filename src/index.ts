@@ -11,7 +11,7 @@ export class QueueObject<T> {
   priority: Priority;
 }
 
-export default class RunQueue <T> {
+export class RunQueue<T> {
   private queue: Array<QueueObject<T>> = [];
 
   constructor(comparator?: Function) {
@@ -19,7 +19,16 @@ export default class RunQueue <T> {
   }
 
   public add(obj: T, priority: Priority = Priority.MEDIUM): Promise<Array<QueueObject<T>>> {
-    this.queue.push({obj, priority});
+    if (priority < Priority.LOW) {
+      throw new TypeError(`Priority can't be less than ${Priority.LOW}.`);
+    }
+    if (priority > Priority.MEDIUM) {
+      this.queue.unshift({obj, priority});
+    } else if (priority > Priority.LOW) {
+      this.queue.splice(Math.floor(this.queue.length / 2), 0, {obj, priority});
+    } else {
+      this.queue.push({obj, priority});
+    }
     return Promise.resolve(this.queue);
   }
 
