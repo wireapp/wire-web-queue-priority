@@ -6,33 +6,44 @@ export enum Priority {
   HIGH = 9,
 };
 
-export class QueueObject<T> {
-  obj: T;
-  priority: Priority;
+export class QueueObject<I, P> {
+  item: I;
+  priority: P;
 }
 
-export class RunQueue<T> {
-  private queue: Array<QueueObject<T>> = [];
+export class RunQueue<I, P> {
+  private queue: Array<QueueObject<I, P>> = [];
+  private comparator: (a: QueueObject<I, P>, b: QueueObject<I, P>) => number;
+  private isPending: boolean = false;
 
-  constructor(comparator?: Function) {
-
-  }
-
-  public add(obj: T, priority: Priority = Priority.MEDIUM): Promise<Array<QueueObject<T>>> {
-    if (priority < Priority.LOW) {
-      throw new TypeError(`Priority can't be less than ${Priority.LOW}.`);
-    }
-    if (priority > Priority.MEDIUM) {
-      this.queue.unshift({obj, priority});
-    } else if (priority > Priority.LOW) {
-      this.queue.splice(Math.floor(this.queue.length / 2), 0, {obj, priority});
+  constructor(comparator?: (a: QueueObject<I, P>, b: QueueObject<I, P>) => number) {
+    if (comparator) {
+      this.comparator = comparator;
     } else {
-      this.queue.push({obj, priority});
+      this.comparator = (a: QueueObject<I, P>, b: QueueObject<I, P>): number => {
+        return <any>b.priority - <any>a.priority;
+      };
     }
-    return Promise.resolve(this.queue);
   }
 
-  public getAll(): Array<QueueObject<T>> {
+  public get size(): number {
+    return this.queue.length;
+  }
+
+  public get first(): I {
+    return this.queue[0].item;
+  }
+
+  public get last(): I {
+    return this.queue[this.queue.length - 1].item;
+  }
+
+  public add(item: I, priority: P = <any>Priority.MEDIUM): void {
+    this.queue.push({item, priority});
+    this.queue.sort(this.comparator);
+  }
+
+  public getAll(): Array<QueueObject<I, P>> {
     return this.queue;
   }
 }
