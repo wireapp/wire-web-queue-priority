@@ -1,0 +1,23 @@
+# http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+sudo: required
+dist: trusty
+
+# https://docs.travis-ci.com/user/installing-dependencies/#Installing-Packages-with-the-APT-Addon
+addons:
+  apt:
+    packages:
+      - google-chrome-stable
+
+# http://docs.travis-ci.com/user/languages/javascript-with-nodejs/
+language: node_js
+node_js:
+  - "8"
+
+# https://blog.travis-ci.com/2013-12-05-speed-up-your-builds-cache-your-dependencies
+cache:
+  yarn: true
+  directories:
+    - "node_modules"
+
+notifications:
+  email: false

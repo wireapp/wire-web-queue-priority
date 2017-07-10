@@ -1,0 +1,37 @@
+{
+  "author": "Wire",
+  "dependencies": {
+    "@types/node": "8.0.7"
+  },
+  "description": "A promise based dynamic priority queue runner.",
+  "devDependencies": {
+    "jasmine": "2.6.0",
+    "karma": "1.7.0",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-jasmine": "1.1.0",
+    "karma-jasmine-diff-reporter": "1.1.0",
+    "karma-sourcemap-loader": "0.3.7",
+    "rimraf": "2.6.1",
+    "typescript": "2.4.1",
+    "webpack": "3.0.0"
+  },
+  "license": "GPL-3.0",
+  "main": "./dist/commonjs/queue.js",
+  "name": "wire-web-queue-priority",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wireapp/wire-web-queue-priority.git"
+  },
+  "scripts": {
+    "clear": "rimraf dist",
+    "dist": "yarn clear && tsc",
+    "postversion": "git push && git push --tags",
+    "preversion": "yarn && yarn dist && yarn test",
+    "version": "yarn dist",
+    "test": "yarn dist && yarn test:node && yarn test:browser",
+    "test:node": "jasmine",
+    "test:browser": "webpack && karma start karma.conf.js"
+  },
+  "types": "./dist/commonjs/index.d.ts",
+  "version": "0.0.1"
+}
