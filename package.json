@@ -17,7 +17,7 @@
   },
   "license": "GPL-3.0",
   "main": "./dist/commonjs/queue.js",
-  "name": "wire-web-queue-priority",
+  "name": "@wireapp/wire-web-queue-priority",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wireapp/wire-web-queue-priority.git"

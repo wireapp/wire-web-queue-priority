@@ -1,9 +1,9 @@
-import {Priority as RunQueuePriority, RunQueue} from '../../dist/commonjs';
+import {Priority, PriorityQueue} from '../../dist/commonjs';
 
-describe('RunQueue', () => {
+describe('PriorityQueue', () => {
   describe('"add"', () => {
     it('adds objects', () => {
-      const queue = new RunQueue();
+      const queue = new PriorityQueue();
 
       queue.add(() => 'ape');
       queue.add(() => 'cat');
@@ -13,11 +13,11 @@ describe('RunQueue', () => {
     });
 
     it('adds objects with priorities', () => {
-      const queue = new RunQueue();
+      const queue = new PriorityQueue();
 
       queue.add(() => 'ape');
-      queue.add(() => 'cat', RunQueuePriority.LOW);
-      queue.add(() => 'dog', RunQueuePriority.HIGH);
+      queue.add(() => 'cat', Priority.LOW);
+      queue.add(() => 'dog', Priority.HIGH);
       queue.add(() => 'zebra');
       expect(queue.first.fn()).toBe('dog');
       expect(queue.last.fn()).toBe('cat');
@@ -26,7 +26,7 @@ describe('RunQueue', () => {
 
   describe('"run"', () => {
     it('executes an item from the queue', done => {
-      const queue = new RunQueue();
+      const queue = new PriorityQueue();
       const ape = () => Promise.resolve('ape').then(done());
 
       queue.add(ape);
@@ -36,7 +36,7 @@ describe('RunQueue', () => {
     });
 
     it('executes an item from the queue', done => {
-      const queue = new RunQueue();
+      const queue = new PriorityQueue();
 
       const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
       const promise2 = () => Promise.resolve('two').then(item => expect(item).toBe('two'));
@@ -45,13 +45,13 @@ describe('RunQueue', () => {
         done();
       });
 
-      queue.add(promise1, RunQueuePriority.HIGH);
-      queue.add(promise2, RunQueuePriority.MEDIUM);
-      queue.add(promise3, RunQueuePriority.LOW);
+      queue.add(promise1, Priority.HIGH);
+      queue.add(promise2, Priority.MEDIUM);
+      queue.add(promise3, Priority.LOW);
     });
 
     it('waits until an error is resolved', done => {
-      const queue = new RunQueue();
+      const queue = new PriorityQueue();
 
       function businessLogic(param) {
         return new Promise((resolve, reject) => {
@@ -67,13 +67,13 @@ describe('RunQueue', () => {
       const promise2 = () => Promise.resolve('two').then(item => expect(item).toBe('two'));
       const promise3 = () => Promise.resolve('three').then(() => done());
 
-      queue.add(promise1, RunQueuePriority.HIGH);
-      queue.add(promise2, RunQueuePriority.MEDIUM);
-      queue.add(promise3, RunQueuePriority.LOW);
+      queue.add(promise1, Priority.HIGH);
+      queue.add(promise2, Priority.MEDIUM);
+      queue.add(promise3, Priority.LOW);
     });
 
     it('executes a high priority element prior to other running elements ', done => {
-      const queue = new RunQueue();
+      const queue = new PriorityQueue();
 
       const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
       const promise2 = () => Promise.reject('two');
@@ -84,30 +84,30 @@ describe('RunQueue', () => {
 
       queue.add(promise1);
       queue.add(promise2);
-      setTimeout(() => queue.add(promise3, RunQueuePriority.HIGH), 1000);
+      setTimeout(() => queue.add(promise3, Priority.HIGH), 1000);
     });
   });
 
   describe('"comparator"', () => {
     it('uses a descending priority order by default', () => {
-      const queue = new RunQueue();
+      const queue = new PriorityQueue();
 
-      queue.add(() => 'ape', RunQueuePriority.HIGH);
+      queue.add(() => 'ape', Priority.HIGH);
       queue.add(() => 'cat');
       queue.add(() => 'dog');
-      queue.add(() => 'zebra', RunQueuePriority.LOW);
+      queue.add(() => 'zebra', Priority.LOW);
       expect(queue.last.fn()).toBe('zebra');
       expect(queue.first.fn()).toBe('ape');
     });
 
     it('supports a custom comparator', () => {
       const ascendingPriority = (a, b) => a.priority - b.priority;
-      const queue = new RunQueue(ascendingPriority);
+      const queue = new PriorityQueue(ascendingPriority);
 
-      queue.add(() => 'ape', RunQueuePriority.HIGH);
+      queue.add(() => 'ape', Priority.HIGH);
       queue.add(() => 'cat');
       queue.add(() => 'dog');
-      queue.add(() => 'zebra', RunQueuePriority.LOW);
+      queue.add(() => 'zebra', Priority.LOW);
       expect(queue.first.fn()).toBe('zebra');
       expect(queue.last.fn()).toBe('ape');
     });

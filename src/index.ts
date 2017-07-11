@@ -11,7 +11,7 @@ export class QueueObject<P> {
   priority: P;
 }
 
-export class RunQueue<P> {
+export class PriorityQueue<P> {
   private comparator: (a: QueueObject<P>, b: QueueObject<P>) => number;
   private isPending: boolean = false;
   private queue: Array<QueueObject<P>> = [];
