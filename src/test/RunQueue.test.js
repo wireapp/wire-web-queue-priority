@@ -19,28 +19,20 @@ describe('RunQueue', () => {
       queue.add(() => 'cat', RunQueuePriority.LOW);
       queue.add(() => 'dog', RunQueuePriority.HIGH);
       queue.add(() => 'zebra');
-      expect(queue.first).toBe('dog');
-      expect(queue.last).toBe('cat');
+      expect(queue.first.fn()).toBe('dog');
+      expect(queue.last.fn()).toBe('cat');
     });
   });
 
   describe('"run"', () => {
     it('executes an item from the queue', done => {
       const queue = new RunQueue();
-
-      const ape = () => Promise.resolve('ape').then(item => {
-        expect(item).toBe('ape');
-        expect(queue.size).toBe(3);
-        expect(queue.first).toBe('cat');
-        expect(queue.last).toBe('zebra');
-        done();
-      });
+      const ape = () => Promise.resolve('ape').then(done());
 
       queue.add(ape);
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra');
-      queue.run();
     });
 
     it('executes an item from the queue', done => {
@@ -56,7 +48,6 @@ describe('RunQueue', () => {
       queue.add(promise1, RunQueuePriority.HIGH);
       queue.add(promise2, RunQueuePriority.MEDIUM);
       queue.add(promise3, RunQueuePriority.LOW);
-      queue.run();
     });
 
     it('waits until an error is resolved', done => {
@@ -72,17 +63,13 @@ describe('RunQueue', () => {
         });
       }
 
-      const promise1 = () => businessLogic('A').catch(err => businessLogic(42)).then(item => expect(item).toBe(42));
+      const promise1 = () => businessLogic('A').catch(() => businessLogic(42)).then(item => expect(item).toBe(42));
       const promise2 = () => Promise.resolve('two').then(item => expect(item).toBe('two'));
-      const promise3 = () => Promise.resolve('three').then(item => {
-        expect(item).toBe('three');
-        done();
-      });
+      const promise3 = () => Promise.resolve('three').then(() => done());
 
       queue.add(promise1, RunQueuePriority.HIGH);
       queue.add(promise2, RunQueuePriority.MEDIUM);
       queue.add(promise3, RunQueuePriority.LOW);
-      queue.run();
     });
 
     it('executes a high priority element prior to other running elements ', done => {
@@ -91,14 +78,12 @@ describe('RunQueue', () => {
       const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
       const promise2 = () => Promise.reject('two');
       const promise3 = () => Promise.resolve('three').then(item => {
-        expect(item).toBe('four');
-        console.log('four');
+        expect(item).toBe('three');
         done();
       });
 
       queue.add(promise1);
       queue.add(promise2);
-      queue.run();
       setTimeout(() => queue.add(promise3, RunQueuePriority.HIGH), 1000);
     });
   });
@@ -111,8 +96,8 @@ describe('RunQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', RunQueuePriority.LOW);
-      expect(queue.first).toBe('ape');
-      expect(queue.last).toBe('zebra');
+      expect(queue.last.fn()).toBe('zebra');
+      expect(queue.first.fn()).toBe('ape');
     });
 
     it('supports a custom comparator', () => {
@@ -123,8 +108,8 @@ describe('RunQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', RunQueuePriority.LOW);
-      expect(queue.first).toBe('zebra');
-      expect(queue.last).toBe('ape');
+      expect(queue.first.fn()).toBe('zebra');
+      expect(queue.last.fn()).toBe('ape');
     });
   });
 });

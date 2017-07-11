@@ -6,21 +6,21 @@ export enum Priority {
   HIGH = 9,
 };
 
-export class QueueObject<I, P> {
+export class QueueObject<P> {
   fn: Function;
   priority: P;
 }
 
-export class RunQueue<I, P> {
-  private comparator: (a: QueueObject<I, P>, b: QueueObject<I, P>) => number;
+export class RunQueue<P> {
+  private comparator: (a: QueueObject<P>, b: QueueObject<P>) => number;
   private isPending: boolean = false;
-  private queue: Array<QueueObject<I, P>> = [];
+  private queue: Array<QueueObject<P>> = [];
 
-  constructor(comparator?: (a: QueueObject<I, P>, b: QueueObject<I, P>) => number) {
+  constructor(comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number) {
     if (typeof comparator === 'function') {
       this.comparator = comparator;
     } else {
-      this.comparator = (a: QueueObject<I, P>, b: QueueObject<I, P>): number => {
+      this.comparator = (a: QueueObject<P>, b: QueueObject<P>): number => {
         return <any>b.priority - <any>a.priority;
       };
     }
@@ -30,35 +30,35 @@ export class RunQueue<I, P> {
     return this.queue.length;
   }
 
-  public get first(): I {
-    const {fn = null} = this.queue[0];
-    return fn();
+  public get first(): QueueObject<P> {
+    return this.queue[0];
   }
 
-  public get last(): I {
-    const {fn = null} = this.queue[this.queue.length - 1];
-    return fn();
+  public get last(): QueueObject<P> {
+    return this.queue[this.queue.length - 1];
   }
 
   private run(): void {
-    if (!this.isPending) {
-      const fn = this.first;
+    if (!this.isPending && this.first) {
+      const fn = this.first.fn;
+
       this.isPending = true;
-      if (fn) {
-        const queueFn = this.queue.shift();
-        Promise.resolve(queueFn.fn())
-          .then(() => {
-            this.isPending = false;
-            return this.run();
-          }).catch((err) => {
-            console.log('caught', err);
-          });
-      }
+      Promise.resolve(fn())
+        .then((item) => {
+          this.queue.shift();
+          this.isPending = false;
+          this.run();
+        }).catch((err) => {
+          this.queue.shift();
+          this.isPending = false;
+          this.run();
+        });
     }
   }
 
   public add(fn: Function, priority: P = <any>Priority.MEDIUM): void {
     this.queue.push({fn, priority});
     this.queue.sort(this.comparator);
+    this.run();
   }
 }
