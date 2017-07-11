@@ -40,23 +40,19 @@ export class RunQueue<I, P> {
     return item;
   }
 
-  private run(): Promise<I> {
+  private run(): void {
     if (!this.isPending) {
       const item = this.first;
       this.isPending = true;
-
-      return new Promise((resolve, reject) => {
-        if (item) {
-          const queueItem = this.queue.shift();
-          this.run();
-          resolve(queueItem.item);
+      if (item) {
+        const queueItem = this.queue.shift();
+        Promise.resolve(queueItem.item).then(() => {
           this.isPending = false;
-        } else {
-          reject('');
-        }
-      });
-    } else {
-      return Promise.reject('');
+          return this.run();
+        });
+      } else {
+        Promise.resolve();
+      }
     }
   }
 

@@ -25,32 +25,30 @@ describe('RunQueue', () => {
   });
 
   describe('"run"', () => {
-    it('executes an item from the queue', (done) => {
+    it('executes an item from the queue', done => {
       const queue = new RunQueue();
 
-      queue.add('ape');
-      queue.add('cat');
-      queue.add('dog');
-      queue.add('zebra');
-      queue.run().then((item) => {
+      const ape = Promise.resolve('ape').then(item => {
+        expect(item).toBe('ape');
         expect(queue.size).toBe(3);
         expect(queue.first).toBe('cat');
         expect(queue.last).toBe('zebra');
-        expect(item).toBe('ape');
         done();
       });
+
+      queue.add(ape);
+      queue.add('cat');
+      queue.add('dog');
+      queue.add('zebra');
+      queue.run();
     });
 
     it('executes an item from the queue', (done) => {
       const queue = new RunQueue();
 
-      const promise1 = Promise.resolve('one').then((item) => {
-        expect(item).toBe('one');
-      });
-      const promise2 = Promise.resolve('two').then((item) => {
-        expect(item).toBe('two');
-      });
-      const promise3 = Promise.resolve('three').then((item) => {
+      const promise1 = Promise.resolve('one').then(item => expect(item).toBe('one'));
+      const promise2 = Promise.resolve('two').then(item => expect(item).toBe('two'));
+      const promise3 = Promise.resolve('three').then(item => {
         expect(item).toBe('three');
         done();
       });
