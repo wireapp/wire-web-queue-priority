@@ -12,12 +12,12 @@ export class QueueObject<I, P> {
 }
 
 export class RunQueue<I, P> {
-  private queue: Array<QueueObject<I, P>> = [];
   private comparator: (a: QueueObject<I, P>, b: QueueObject<I, P>) => number;
   private isPending: boolean = false;
+  private queue: Array<QueueObject<I, P>> = [];
 
   constructor(comparator?: (a: QueueObject<I, P>, b: QueueObject<I, P>) => number) {
-    if (comparator) {
+    if (typeof comparator === 'function') {
       this.comparator = comparator;
     } else {
       this.comparator = (a: QueueObject<I, P>, b: QueueObject<I, P>): number => {
@@ -31,21 +31,33 @@ export class RunQueue<I, P> {
   }
 
   public get first(): I {
-    return this.queue[0].item;
+    const {item = null} = this.queue[0];
+    return item;
   }
 
   public get last(): I {
-    return this.queue[this.queue.length - 1].item;
+    const {item = null} = this.queue[this.queue.length - 1];
+    return item;
   }
 
   private run(): Promise<I> {
-    const item = this.first;
+    if (!this.isPending) {
+      const item = this.first;
+      this.isPending = true;
 
-    return Promise.resolve(item)
-      .then(() => {
-        const queueItem = this.queue.shift();
-        return queueItem.item;
+      return new Promise((resolve, reject) => {
+        if (item) {
+          const queueItem = this.queue.shift();
+          this.run();
+          resolve(queueItem.item);
+          this.isPending = false;
+        } else {
+          reject('');
+        }
       });
+    } else {
+      return Promise.reject('');
+    }
   }
 
   public add(item: I, priority: P = <any>Priority.MEDIUM): void {

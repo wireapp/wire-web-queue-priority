@@ -1,36 +1,33 @@
-import {Priority, RunQueue} from '../../dist/commonjs';
+import {Priority as RunQueuePriority, RunQueue} from '../../dist/commonjs';
 
 describe('RunQueue', () => {
-  let queue;
-
-  beforeEach((done) => {
-    queue = new RunQueue();
-    done();
-  });
-
   describe('"add"', () => {
-    it('adds objects', (done) => {
+    it('adds objects', () => {
+      const queue = new RunQueue();
+
       queue.add('ape');
       queue.add('cat');
       queue.add('dog');
       queue.add('zebra');
       expect(queue.size).toBe(4);
-      done();
     });
 
-    it('adds objects with priorities', (done) => {
+    it('adds objects with priorities', () => {
+      const queue = new RunQueue();
+
       queue.add('ape');
-      queue.add('cat', Priority.LOW);
-      queue.add('dog', Priority.HIGH);
+      queue.add('cat', RunQueuePriority.LOW);
+      queue.add('dog', RunQueuePriority.HIGH);
       queue.add('zebra');
       expect(queue.first).toBe('dog');
       expect(queue.last).toBe('cat');
-      done();
     });
   });
 
   describe('"run"', () => {
     it('executes an item from the queue', (done) => {
+      const queue = new RunQueue();
+
       queue.add('ape');
       queue.add('cat');
       queue.add('dog');
@@ -42,6 +39,51 @@ describe('RunQueue', () => {
         expect(item).toBe('ape');
         done();
       });
+    });
+
+    it('executes an item from the queue', (done) => {
+      const queue = new RunQueue();
+
+      const promise1 = Promise.resolve('one').then((item) => {
+        expect(item).toBe('one');
+      });
+      const promise2 = Promise.resolve('two').then((item) => {
+        expect(item).toBe('two');
+      });
+      const promise3 = Promise.resolve('three').then((item) => {
+        expect(item).toBe('three');
+        done();
+      });
+
+      queue.add(promise1, RunQueuePriority.HIGH);
+      queue.add(promise2, RunQueuePriority.MEDIUM);
+      queue.add(promise3, RunQueuePriority.LOW);
+      queue.run();
+    });
+  });
+
+  describe('"comparator"', () => {
+    it('uses a descending priority order by default', () => {
+      const queue = new RunQueue();
+
+      queue.add('ape', RunQueuePriority.HIGH);
+      queue.add('cat');
+      queue.add('dog');
+      queue.add('zebra', RunQueuePriority.LOW);
+      expect(queue.first).toBe('ape');
+      expect(queue.last).toBe('zebra');
+    });
+
+    it('supports a custom comparator', () => {
+      const ascendingPriority = (a, b) => a.priority - b.priority;
+      const queue = new RunQueue(ascendingPriority);
+
+      queue.add('ape', RunQueuePriority.HIGH);
+      queue.add('cat');
+      queue.add('dog');
+      queue.add('zebra', RunQueuePriority.LOW);
+      expect(queue.first).toBe('zebra');
+      expect(queue.last).toBe('ape');
     });
   });
 });
