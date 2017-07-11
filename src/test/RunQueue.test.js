@@ -43,10 +43,36 @@ describe('RunQueue', () => {
       queue.run();
     });
 
-    it('executes an item from the queue', (done) => {
+    it('executes an item from the queue', done => {
       const queue = new RunQueue();
 
       const promise1 = Promise.resolve('one').then(item => expect(item).toBe('one'));
+      const promise2 = Promise.resolve('two').then(item => expect(item).toBe('two'));
+      const promise3 = Promise.resolve('three').then(item => {
+        expect(item).toBe('three');
+        done();
+      });
+
+      queue.add(promise1, RunQueuePriority.HIGH);
+      queue.add(promise2, RunQueuePriority.MEDIUM);
+      queue.add(promise3, RunQueuePriority.LOW);
+      queue.run();
+    });
+
+    it('waits until an error is resolved', done => {
+      const queue = new RunQueue();
+
+      function businessLogic(param) {
+        return new Promise((resolve, reject) => {
+          if (isNaN(param)) {
+            reject(new TypeError('Not a Number'));
+          } else {
+            resolve(param);
+          }
+        });
+      }
+
+      const promise1 = businessLogic('A').catch(err => businessLogic(42)).then(item => expect(item).toBe(42));
       const promise2 = Promise.resolve('two').then(item => expect(item).toBe('two'));
       const promise3 = Promise.resolve('three').then(item => {
         expect(item).toBe('three');

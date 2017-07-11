@@ -60,8 +60,4 @@ export class RunQueue<I, P> {
     this.queue.push({item, priority});
     this.queue.sort(this.comparator);
   }
-
-  public getAll(): Array<QueueObject<I, P>> {
-    return this.queue;
-  }
 }
