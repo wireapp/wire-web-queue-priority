@@ -7,7 +7,7 @@ export enum Priority {
 };
 
 export class QueueObject<I, P> {
-  item: I;
+  fn: Function;
   priority: P;
 }
 
@@ -31,33 +31,34 @@ export class RunQueue<I, P> {
   }
 
   public get first(): I {
-    const {item = null} = this.queue[0];
-    return item;
+    const {fn = null} = this.queue[0];
+    return fn();
   }
 
   public get last(): I {
-    const {item = null} = this.queue[this.queue.length - 1];
-    return item;
+    const {fn = null} = this.queue[this.queue.length - 1];
+    return fn();
   }
 
   private run(): void {
     if (!this.isPending) {
-      const item = this.first;
+      const fn = this.first;
       this.isPending = true;
-      if (item) {
-        const queueItem = this.queue.shift();
-        Promise.resolve(queueItem.item).then(() => {
-          this.isPending = false;
-          return this.run();
-        });
-      } else {
-        Promise.resolve();
+      if (fn) {
+        const queueFn = this.queue.shift();
+        Promise.resolve(queueFn.fn())
+          .then(() => {
+            this.isPending = false;
+            return this.run();
+          }).catch((err) => {
+            console.log('caught', err);
+          });
       }
     }
   }
 
-  public add(item: I, priority: P = <any>Priority.MEDIUM): void {
-    this.queue.push({item, priority});
+  public add(fn: Function, priority: P = <any>Priority.MEDIUM): void {
+    this.queue.push({fn, priority});
     this.queue.sort(this.comparator);
   }
 }
