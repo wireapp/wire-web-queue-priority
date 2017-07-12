@@ -112,7 +112,7 @@ describe('PriorityQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', Priority.LOW);
-      
+
       expect(queue.first.fn()).toBe('zebra');
       expect(queue.last.fn()).toBe('ape');
     });
