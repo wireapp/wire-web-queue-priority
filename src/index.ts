@@ -4,7 +4,7 @@ export enum Priority {
   LOW = 0,
   MEDIUM = 5,
   HIGH = 9,
-};
+}
 
 export class QueueObject<P> {
   fn: Function;
@@ -26,6 +26,12 @@ export class PriorityQueue<P> {
     }
   }
 
+  public add(fn: Function, priority: P = <any>Priority.MEDIUM): void {
+    this.queue.push({fn, priority});
+    this.queue.sort(this.comparator);
+    this.run();
+  }
+
   public get size(): number {
     return this.queue.length;
   }
@@ -44,21 +50,15 @@ export class PriorityQueue<P> {
 
       this.isPending = true;
       Promise.resolve(fn())
-        .then((item) => {
+        .then(() => {
           this.queue.shift();
           this.isPending = false;
           this.run();
-        }).catch((err) => {
+        }).catch(() => {
           this.queue.shift();
           this.isPending = false;
           this.run();
         });
     }
-  }
-
-  public add(fn: Function, priority: P = <any>Priority.MEDIUM): void {
-    this.queue.push({fn, priority});
-    this.queue.sort(this.comparator);
-    this.run();
   }
 }
