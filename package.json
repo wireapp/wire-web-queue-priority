@@ -16,7 +16,7 @@
     "webpack": "3.2.0"
   },
   "license": "GPL-3.0",
-  "main": "./dist/commonjs/queue.js",
+  "main": "./dist/commonjs/index.js",
   "name": "@wireapp/queue-priority",
   "repository": {
     "type": "git",
