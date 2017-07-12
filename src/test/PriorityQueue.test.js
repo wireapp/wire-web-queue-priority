@@ -9,6 +9,7 @@ describe('PriorityQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra');
+
       expect(queue.size).toBe(4);
     });
 
@@ -19,6 +20,7 @@ describe('PriorityQueue', () => {
       queue.add(() => 'cat', Priority.LOW);
       queue.add(() => 'dog', Priority.HIGH);
       queue.add(() => 'zebra');
+
       expect(queue.first.fn()).toBe('dog');
       expect(queue.last.fn()).toBe('cat');
     });
@@ -84,6 +86,7 @@ describe('PriorityQueue', () => {
 
       queue.add(promise1);
       queue.add(promise2);
+
       setTimeout(() => queue.add(promise3, Priority.HIGH), 1000);
     });
   });
@@ -96,6 +99,7 @@ describe('PriorityQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', Priority.LOW);
+
       expect(queue.last.fn()).toBe('zebra');
       expect(queue.first.fn()).toBe('ape');
     });
@@ -108,6 +112,7 @@ describe('PriorityQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', Priority.LOW);
+      
       expect(queue.first.fn()).toBe('zebra');
       expect(queue.last.fn()).toBe('ape');
     });
