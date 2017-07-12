@@ -1,7 +1,7 @@
 {
   "author": "Wire",
   "dependencies": {
-    "@types/node": "8.0.7"
+    "@types/node": "8.0.10"
   },
   "description": "A promise based dynamic priority queue runner.",
   "devDependencies": {
@@ -13,7 +13,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "rimraf": "2.6.1",
     "typescript": "2.4.1",
-    "webpack": "3.0.0"
+    "webpack": "3.2.0"
   },
   "license": "GPL-3.0",
   "main": "./dist/commonjs/queue.js",
