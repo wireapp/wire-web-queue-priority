@@ -1,5 +1,7 @@
 -----
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/wireapp/wire-web-queue-priority.svg)](https://greenkeeper.io/)
+
 :warning: *THIS PROJECT IS NOT OFFICIALLY SUPPORTED! ALL CODE IN HERE IS
 IN DEVELOPMENT AND LIKELY TO CHANGE WITHOUT WARNING. USE AT YOUR OWN
 RISK.* :warning:
