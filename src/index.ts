@@ -23,7 +23,7 @@ export class PriorityQueue<P> {
     } else {
       this.comparator = (a: QueueObject<P>, b: QueueObject<P>): number => {
         if (a.priority === b.priority) {
-          return <any>b.timestamp - <any>a.timestamp;
+          return b.timestamp.getTime() - a.timestamp.getTime();
         }
         return <any>b.priority - <any>a.priority;
       };
