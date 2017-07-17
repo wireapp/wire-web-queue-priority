@@ -89,6 +89,22 @@ describe('PriorityQueue', () => {
 
       setTimeout(() => queue.add(promise3, Priority.HIGH), 1000);
     });
+
+    it('executes a new element prior to older running elements ', done => {
+      const queue = new PriorityQueue();
+
+      const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
+      const promise2 = () => Promise.reject('two');
+      const promise3 = () => Promise.resolve('three').then(item => {
+        expect(item).toBe('three');
+        done();
+      });
+
+      queue.add(promise1);
+      queue.add(promise2);
+
+      setTimeout(() => queue.add(promise3), 1000);
+    });
   });
 
   describe('"comparator"', () => {
@@ -112,7 +128,7 @@ describe('PriorityQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', Priority.LOW);
-      
+
       expect(queue.first.fn()).toBe('zebra');
       expect(queue.last.fn()).toBe('ape');
     });
