@@ -112,9 +112,25 @@ describe('PriorityQueue', () => {
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', Priority.LOW);
-      
+
       expect(queue.first.fn()).toBe('zebra');
       expect(queue.last.fn()).toBe('ape');
+    });
+
+    it('sorts by date if the priorities are the same', done => {
+      const queue = new PriorityQueue();
+
+      const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
+      const promise2 = () => Promise.reject('two');
+      const promise3 = () => Promise.resolve('three').then(item => {
+        expect(item).toBe('three');
+        done();
+      });
+
+      queue.add(promise1);
+      queue.add(promise2);
+
+      setTimeout(() => queue.add(promise3), 1000);
     });
   });
 });

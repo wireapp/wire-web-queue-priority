@@ -9,6 +9,7 @@ export enum Priority {
 export class QueueObject<P> {
   fn: Function;
   priority: P;
+  timestamp: Date;
 }
 
 export class PriorityQueue<P> {
@@ -21,13 +22,18 @@ export class PriorityQueue<P> {
       this.comparator = comparator;
     } else {
       this.comparator = (a: QueueObject<P>, b: QueueObject<P>): number => {
+        if (a.priority === b.priority) {
+          return b.timestamp.getTime() - a.timestamp.getTime();
+        }
         return <any>b.priority - <any>a.priority;
       };
     }
   }
 
   public add(fn: Function, priority: P = <any>Priority.MEDIUM): void {
-    this.queue.push({fn, priority});
+    const timestamp = new Date();
+
+    this.queue.push({fn, priority, timestamp});
     this.queue.sort(this.comparator);
     this.run();
   }
@@ -46,7 +52,7 @@ export class PriorityQueue<P> {
 
   private run(): void {
     if (!this.isPending && this.first) {
-      const fn = this.first.fn;
+      const {fn} = this.first;
 
       this.isPending = true;
       Promise.resolve(fn())
