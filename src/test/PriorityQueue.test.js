@@ -54,7 +54,7 @@ describe('PriorityQueue', () => {
 
     it('retries on error until the error gets resolved', done => {
       let isLocked = true;
-
+      const unlock = () => isLocked = false;
       const businessLogic = () => {
         return new Promise(function (resolve, reject) {
           if (isLocked) {
@@ -66,11 +66,8 @@ describe('PriorityQueue', () => {
         });
       };
 
-      const unlock = () => isLocked = false;
-
       const queue = new PriorityQueue();
       queue.add(businessLogic);
-
       setTimeout(() => queue.add(unlock, Priority.HIGH), 1000);
     });
 
