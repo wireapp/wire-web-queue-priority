@@ -1,5 +1,7 @@
 import {Priority, PriorityQueue} from '../../dist/commonjs';
 
+beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 5000);
+
 describe('PriorityQueue', () => {
   describe('"add"', () => {
     it('adds objects', () => {
@@ -76,12 +78,13 @@ describe('PriorityQueue', () => {
 
     it('retries on error until the error gets resolved', done => {
       let isLocked = true;
+
       const unlock = new Promise(function(resolve) {
         isLocked = false;
         resolve();
       });
 
-      const businessLogic = new Promise(function (resolve, reject) {
+      const businessLogic = new Promise(function(resolve, reject) {
         if (isLocked) {
           reject(new Error('Promise is locked.'));
         } else {

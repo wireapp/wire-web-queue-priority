@@ -27,6 +27,7 @@ module.exports = function(config) {
   config.set({
     autoWatch: false,
     basePath: '',
+    browserNoActivityTimeout: 5000,
     browsers: ['Chrome_Headless'],
     client: {
       useIframe: false,
