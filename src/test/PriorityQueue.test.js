@@ -76,9 +76,11 @@ describe('PriorityQueue', () => {
 
     it('retries on error until the error gets resolved', done => {
       let isLocked = true;
-      const unlock = () => {
+      const unlock = new Promise(function(resolve) {
         isLocked = false;
-      };
+        resolve();
+      });
+
       const businessLogic = new Promise(function (resolve, reject) {
         if (isLocked) {
           reject(new Error('Promise is locked.'));
@@ -90,7 +92,7 @@ describe('PriorityQueue', () => {
 
       const queue = new PriorityQueue();
       queue.add(businessLogic);
-      setTimeout(() => queue.add(unlock, Priority.HIGH), 1000);
+      setTimeout(() => queue.add(unlock, Priority.HIGH), 2000);
     });
 
     it('works with error-catching Promises', done => {
