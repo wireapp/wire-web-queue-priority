@@ -31,9 +31,7 @@ export class PriorityQueue<P> {
   }
 
   public add(fn: Function, priority: P = <any>Priority.MEDIUM): void {
-    const timestamp = new Date();
-
-    this.queue.push({fn, priority, timestamp});
+    this.queue.push({fn, priority, timestamp: new Date()});
     this.queue.sort(this.comparator);
     this.run();
   }
@@ -50,21 +48,25 @@ export class PriorityQueue<P> {
     return this.queue[this.queue.length - 1];
   }
 
+  private resolveItems(): void {
+    const {fn} = this.first;
+
+    Promise.resolve(fn())
+      .then(() => {
+        this.queue.shift();
+        this.isPending = false;
+        this.run();
+      })
+      .catch(() => {
+        // TODO: Implement configurable reconnection delay (and reconnection delay grow factor)
+        setTimeout(() => this.resolveItems(), 1000);
+      });
+  }
+
   private run(): void {
     if (!this.isPending && this.first) {
-      const {fn} = this.first;
-
       this.isPending = true;
-      Promise.resolve(fn())
-        .then(() => {
-          this.queue.shift();
-          this.isPending = false;
-          this.run();
-        }).catch(() => {
-          this.queue.shift();
-          this.isPending = false;
-          this.run();
-        });
+      this.resolveItems();
     }
   }
 }

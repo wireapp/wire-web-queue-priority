@@ -37,7 +37,7 @@ describe('PriorityQueue', () => {
       queue.add(() => 'zebra');
     });
 
-    it('executes an item from the queue', done => {
+    it('executes an item from the queue with different priorities', done => {
       const queue = new PriorityQueue();
 
       const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
@@ -52,7 +52,29 @@ describe('PriorityQueue', () => {
       queue.add(promise3, Priority.LOW);
     });
 
-    it('waits until an error is resolved', done => {
+    it('retries on error until the error gets resolved', done => {
+      let isLocked = true;
+
+      const businessLogic = () => {
+        return new Promise(function (resolve, reject) {
+          if (isLocked) {
+            reject(new Error('Promise is locked.'));
+          } else {
+            resolve('Promise successfully executed.');
+            done();
+          }
+        });
+      };
+
+      const unlock = () => isLocked = false;
+
+      const queue = new PriorityQueue();
+      queue.add(businessLogic);
+
+      setTimeout(() => queue.add(unlock, Priority.HIGH), 1000);
+    });
+
+    it('works with error-catching Promises', done => {
       const queue = new PriorityQueue();
 
       function businessLogic(param) {
