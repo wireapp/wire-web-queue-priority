@@ -4,6 +4,7 @@ describe('PriorityQueue', () => {
   describe('"add"', () => {
     it('adds objects', () => {
       const queue = new PriorityQueue();
+      queue.isPending = true;
 
       queue.add(() => 'ape');
       queue.add(() => 'cat');
@@ -13,28 +14,39 @@ describe('PriorityQueue', () => {
       expect(queue.size).toBe(4);
     });
 
-    it('adds objects with priorities', () => {
+    it('adds objects with priorities', (done) => {
       const queue = new PriorityQueue();
+      queue.isPending = true;
 
       queue.add(() => 'ape');
       queue.add(() => 'cat', Priority.LOW);
       queue.add(() => 'dog', Priority.HIGH);
       queue.add(() => 'zebra');
 
-      expect(queue.first.fn()).toBe('dog');
-      expect(queue.last.fn()).toBe('cat');
+      Promise.resolve()
+        .then(() => {
+          return queue.first.fn;
+        })
+        .then((value) => {
+          expect(value).toBe('dog');
+          return queue.last.fn;
+        })
+        .then((value) => {
+          expect(value).toBe('cat');
+          done();
+        });
     });
   });
 
   describe('"run"', () => {
-    fit('works with primitive values', done => {
+    it('works with primitive values', done => {
       const queue = new PriorityQueue();
       const zebra = () => Promise.resolve('zebra').then(done());
 
       queue.add('ape');
       queue.add('cat');
       queue.add('dog');
-      queue.add('zebra');
+      queue.add(zebra);
     });
 
     it('executes an item from the queue', done => {
@@ -64,17 +76,17 @@ describe('PriorityQueue', () => {
 
     it('retries on error until the error gets resolved', done => {
       let isLocked = true;
-      const unlock = () => isLocked = false;
-      const businessLogic = () => {
-        return new Promise(function (resolve, reject) {
-          if (isLocked) {
-            reject(new Error('Promise is locked.'));
-          } else {
-            resolve('Promise successfully executed.');
-            done();
-          }
-        });
+      const unlock = () => {
+        isLocked = false;
       };
+      const businessLogic = new Promise(function (resolve, reject) {
+        if (isLocked) {
+          reject(new Error('Promise is locked.'));
+        } else {
+          resolve('Promise successfully executed.');
+          done();
+        }
+      });
 
       const queue = new PriorityQueue();
       queue.add(businessLogic);
@@ -121,29 +133,51 @@ describe('PriorityQueue', () => {
   });
 
   describe('"comparator"', () => {
-    it('uses a descending priority order by default', () => {
+    it('uses a descending priority order by default', (done) => {
       const queue = new PriorityQueue();
+      queue.isPending = true;
 
       queue.add(() => 'ape', Priority.HIGH);
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', Priority.LOW);
 
-      expect(queue.last.fn()).toBe('zebra');
-      expect(queue.first.fn()).toBe('ape');
+      Promise.resolve()
+        .then(() => {
+          return queue.last.fn;
+        })
+        .then((value) => {
+          expect(value).toBe('zebra');
+          return queue.first.fn;
+        })
+        .then((value) => {
+          expect(value).toBe('ape');
+          done();
+        });
     });
 
-    it('supports a custom comparator', () => {
+    it('supports a custom comparator', (done) => {
       const ascendingPriority = (a, b) => a.priority - b.priority;
       const queue = new PriorityQueue(ascendingPriority);
+      queue.isPending = true;
 
       queue.add(() => 'ape', Priority.HIGH);
       queue.add(() => 'cat');
       queue.add(() => 'dog');
       queue.add(() => 'zebra', Priority.LOW);
 
-      expect(queue.first.fn()).toBe('zebra');
-      expect(queue.last.fn()).toBe('ape');
+      Promise.resolve()
+        .then(() => {
+          return queue.first.fn;
+        })
+        .then((value) => {
+          expect(value).toBe('zebra');
+          return queue.last.fn;
+        })
+        .then((value) => {
+          expect(value).toBe('ape');
+          done();
+        });
     });
 
     it('sorts by date if the priorities are the same', done => {
