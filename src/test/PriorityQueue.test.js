@@ -27,6 +27,16 @@ describe('PriorityQueue', () => {
   });
 
   describe('"run"', () => {
+    fit('works with primitive values', done => {
+      const queue = new PriorityQueue();
+      const zebra = () => Promise.resolve('zebra').then(done());
+
+      queue.add('ape');
+      queue.add('cat');
+      queue.add('dog');
+      queue.add('zebra');
+    });
+
     it('executes an item from the queue', done => {
       const queue = new PriorityQueue();
       const ape = () => Promise.resolve('ape').then(done());
