@@ -6,22 +6,22 @@ export enum Priority {
   HIGH = 9,
 }
 
-export class QueueObject<P> {
-  fn: Function;
+export class QueueObject<P, T> {
+  fn: Promise<T>;
   priority: P;
   timestamp: Date;
 }
 
-export class PriorityQueue<P> {
-  private comparator: (a: QueueObject<P>, b: QueueObject<P>) => number;
+export class PriorityQueue<P, T> {
+  private comparator: (a: QueueObject<P, T>, b: QueueObject<P, T>) => number;
   private isPending: boolean = false;
-  private queue: Array<QueueObject<P>> = [];
+  private queue: Array<QueueObject<P, T>> = [];
 
-  constructor(comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number) {
+  constructor(comparator?: (a: QueueObject<P, T>, b: QueueObject<P, T>) => number) {
     if (typeof comparator === 'function') {
       this.comparator = comparator;
     } else {
-      this.comparator = (a: QueueObject<P>, b: QueueObject<P>): number => {
+      this.comparator = (a: QueueObject<P, T>, b: QueueObject<P, T>): number => {
         if (a.priority === b.priority) {
           return b.timestamp.getTime() - a.timestamp.getTime();
         }
@@ -30,7 +30,12 @@ export class PriorityQueue<P> {
     }
   }
 
-  public add(fn: Function, priority: P = <any>Priority.MEDIUM): void {
+  public add(fn: Promise<T>, priority: P = <any>Priority.MEDIUM): void {
+    if (typeof fn !== 'function') {
+      const value = fn;
+      fn = new Promise((resolve) => resolve(value));
+    }
+
     this.queue.push({fn, priority, timestamp: new Date()});
     this.queue.sort(this.comparator);
     this.run();
@@ -40,18 +45,18 @@ export class PriorityQueue<P> {
     return this.queue.length;
   }
 
-  public get first(): QueueObject<P> {
+  public get first(): QueueObject<P, T> {
     return this.queue[0];
   }
 
-  public get last(): QueueObject<P> {
+  public get last(): QueueObject<P, T> {
     return this.queue[this.queue.length - 1];
   }
 
   private resolveItems(): void {
     const {fn} = this.first;
 
-    Promise.resolve(fn())
+   fn()
       .then(() => {
         this.queue.shift();
         this.isPending = false;
