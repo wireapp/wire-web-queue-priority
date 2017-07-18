@@ -56,16 +56,14 @@ export class PriorityQueue<P, T> {
   private resolveItems(): void {
     const {fn} = this.first;
 
-   fn()
-      .then(() => {
-        this.queue.shift();
-        this.isPending = false;
-        this.run();
-      })
-      .catch(() => {
-        // TODO: Implement configurable reconnection delay (and reconnection delay grow factor)
-        setTimeout(() => this.resolveItems(), 1000);
-      });
+    fn.then(() => {
+      this.queue.shift();
+      this.isPending = false;
+      this.run();
+    }).catch(() => {
+      // TODO: Implement configurable reconnection delay (and reconnection delay grow factor)
+      setTimeout(() => this.resolveItems(), 1000);
+    });
   }
 
   private run(): void {
