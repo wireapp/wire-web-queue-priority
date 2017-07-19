@@ -79,19 +79,23 @@ describe('PriorityQueue', () => {
     it('retries on error until the error gets resolved', done => {
       let isLocked = true;
 
-      const unlock = new Promise(function(resolve) {
-        isLocked = false;
-        resolve();
-      });
+      const businessLogic = () => {
+        return new Promise(function (resolve, reject) {
+          if (isLocked) {
+            reject(new Error('Promise is locked.'));
+          } else {
+            resolve('Promise successfully executed.');
+            done();
+          }
+        });
+      };
 
-      const businessLogic = new Promise(function(resolve, reject) {
-        if (isLocked) {
-          reject(new Error('Promise is locked.'));
-        } else {
-          resolve('Promise successfully executed.');
-          done();
-        }
-      });
+      const unlock = () => {
+        return new Promise(function(resolve) {
+          isLocked = false;
+          resolve();
+        });
+      };
 
       const queue = new PriorityQueue();
       queue.add(businessLogic);
