@@ -1,4 +1,6 @@
-const {Priority, PriorityQueue} = require('../dist/commonjs/index');
+const {PriorityQueue} = require('../dist/commonjs/index');
+
+beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 5000);
 
 describe('PriorityQueue', () => {
   describe('"add"', () => {
@@ -59,70 +61,6 @@ describe('PriorityQueue', () => {
           expect(error.message).toBe('not so happy');
           done();
         });
-    });
-  });
-
-  describe('"run"', () => {
-    it('doesn\'t run things in parallel', done => {
-      const queue = new PriorityQueue();
-      let state = undefined;
-
-      const ape = () => {
-        return new Promise(function (resolve) {
-          expect(state).toBeUndefined();
-          state = 'ape';
-          setTimeout(() => {
-            state = undefined;
-            resolve('ape')
-          }, 100)
-        });
-      };
-
-      const cat = () => {
-        return new Promise(function (resolve) {
-          expect(state).toBeUndefined();
-          state = 'cat';
-          setTimeout(() => {
-            state = undefined;
-            resolve('cat')
-          }, 300)
-        });
-      };
-
-      const dog = () => {
-        return new Promise(function (resolve) {
-          expect(state).toBeUndefined();
-          state = 'dog';
-          setTimeout(() => {
-            state = undefined;
-            resolve('dog')
-          }, 200)
-        });
-      };
-
-      const zebra = () => {
-        return new Promise(function (resolve) {
-          expect(state).toBeUndefined();
-          state = 'zebra';
-          setTimeout(() => {
-            state = undefined;
-            resolve('zebra')
-          }, 137)
-        });
-      };
-
-      Promise.all([
-        queue.add(ape),
-        queue.add(cat),
-        queue.add(dog),
-        queue.add(zebra)
-      ]).then((results) => {
-        expect(results[0]).toBe('ape');
-        expect(results[1]).toBe('cat');
-        expect(results[2]).toBe('dog');
-        expect(results[3]).toBe('zebra');
-        done();
-      });
     });
   });
 });
