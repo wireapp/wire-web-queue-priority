@@ -27,11 +27,11 @@ describe('PriorityQueue', () => {
 
       Promise.resolve()
         .then(() => {
-          return queue.first.fn;
+          return queue.first.fn();
         })
         .then((value) => {
           expect(value).toBe('dog');
-          return queue.last.fn;
+          return queue.last.fn();
         })
         .then((value) => {
           expect(value).toBe('cat');
@@ -153,11 +153,11 @@ describe('PriorityQueue', () => {
 
       Promise.resolve()
         .then(() => {
-          return queue.last.fn;
+          return queue.last.fn();
         })
         .then((value) => {
           expect(value).toBe('zebra');
-          return queue.first.fn;
+          return queue.first.fn();
         })
         .then((value) => {
           expect(value).toBe('ape');
@@ -177,11 +177,11 @@ describe('PriorityQueue', () => {
 
       Promise.resolve()
         .then(() => {
-          return queue.first.fn;
+          return queue.first.fn();
         })
         .then((value) => {
           expect(value).toBe('zebra');
-          return queue.last.fn;
+          return queue.last.fn();
         })
         .then((value) => {
           expect(value).toBe('ape');
