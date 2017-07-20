@@ -4,7 +4,7 @@ beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000);
 
 describe('PriorityQueue', () => {
   describe('"add"', () => {
-    it('works with thunked Promises', (done) => {
+    fit('works with thunked Promises', (done) => {
       const queue = new PriorityQueue();
 
       Promise.all([

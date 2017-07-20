@@ -38,6 +38,23 @@ describe('PriorityQueue', () => {
           done();
         });
     });
+
+    fit('works with thunked Promises', (done) => {
+      const queue = new PriorityQueue();
+
+      Promise.all([
+        queue.add(() => Promise.resolve('ape')),
+        queue.add(() => Promise.resolve('cat')),
+        queue.add(() => Promise.resolve('dog')),
+        queue.add(() => Promise.resolve('zebra'))
+      ]).then((results) => {
+        expect(results[0]).toBe('ape');
+        expect(results[1]).toBe('cat');
+        expect(results[2]).toBe('dog');
+        expect(results[3]).toBe('zebra');
+        done();
+      });
+    });
   });
 
   describe('"run"', () => {
