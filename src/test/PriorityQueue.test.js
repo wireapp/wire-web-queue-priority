@@ -1,6 +1,6 @@
 import {Priority, PriorityQueue} from '../../dist/commonjs';
 
-beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 5000);
+beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000);
 
 describe('PriorityQueue', () => {
   describe('"add"', () => {

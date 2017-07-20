@@ -1,6 +1,6 @@
 const {PriorityQueue} = require('../dist/commonjs/index');
 
-beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 5000);
+beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000);
 
 describe('PriorityQueue', () => {
   describe('"add"', () => {
