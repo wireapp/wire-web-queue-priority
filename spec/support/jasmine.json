@@ -2,7 +2,7 @@
   "helpers": [
     "helpers/**/*.js"
   ],
-  "random": false,
+  "random": true,
   "spec_dir": "spec",
   "spec_files": [
     "**/*[sS]pec.js"

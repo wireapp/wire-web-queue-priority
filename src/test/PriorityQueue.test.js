@@ -39,7 +39,7 @@ describe('PriorityQueue', () => {
         });
     });
 
-    fit('works with thunked Promises', (done) => {
+    it('works with thunked Promises', (done) => {
       const queue = new PriorityQueue();
 
       Promise.all([
@@ -81,8 +81,16 @@ describe('PriorityQueue', () => {
     it('executes an item from the queue with different priorities', done => {
       const queue = new PriorityQueue();
 
-      const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
-      const promise2 = () => Promise.resolve('two').then(item => expect(item).toBe('two'));
+      const promise1 = () => Promise.resolve('one').then(item => {
+        expect(item).toBe('one');
+        return 'one'
+      });
+
+      const promise2 = () => Promise.resolve('two').then(item => {
+        expect(item).toBe('two');
+        return 'two'
+      });
+
       const promise3 = () => Promise.resolve('three').then(item => {
         expect(item).toBe('three');
         done();
@@ -108,7 +116,7 @@ describe('PriorityQueue', () => {
       };
 
       const unlock = () => {
-        return new Promise(function(resolve) {
+        return new Promise(function (resolve) {
           isLocked = false;
           resolve();
         });
@@ -116,7 +124,7 @@ describe('PriorityQueue', () => {
 
       const queue = new PriorityQueue();
       queue.add(businessLogic);
-      setTimeout(() => queue.add(unlock, Priority.HIGH), 2000);
+      setTimeout(() => queue.add(unlock, Priority.HIGH), 200);
     });
 
     it('works with error-catching Promises', done => {
@@ -206,11 +214,19 @@ describe('PriorityQueue', () => {
         });
     });
 
-    it('sorts by date if the priorities are the same', done => {
+    it('continues after the maximum amount of retries', done => {
       const queue = new PriorityQueue();
 
-      const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
-      const promise2 = () => Promise.reject('two');
+      const promise1 = () => Promise.resolve('one').then(item => {
+        expect(item).toBe('one');
+        return 'one'
+      });
+
+      const promise2 = () => Promise.reject('two').then(item => {
+        expect(item).toBe('two');
+        return 'two'
+      });
+
       const promise3 = () => Promise.resolve('three').then(item => {
         expect(item).toBe('three');
         done();
