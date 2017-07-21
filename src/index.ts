@@ -11,7 +11,7 @@ export class QueueObject<P> {
   priority: P;
   reject: Function;
   resolve: Function;
-  timestamp: Date;
+  timestamp: number;
   retry: number;
 }
 
@@ -26,7 +26,7 @@ export class PriorityQueue<P, T> {
     } else {
       this.comparator = (a: QueueObject<P>, b: QueueObject<P>): number => {
         if (a.priority === b.priority) {
-          return b.timestamp.getTime() - a.timestamp.getTime();
+          return a.timestamp - b.timestamp;
         }
         return <any>b.priority - <any>a.priority;
       };
@@ -38,16 +38,16 @@ export class PriorityQueue<P, T> {
       fn = () => fn;
     }
 
-    console.log('ADDED', fn.toString());
+    console.log('ADDED', fn.toString(), this.queue.map((item) => item.fn.toString()));
 
     return new Promise((resolve, reject) => {
       const queueObject = new QueueObject<P>();
       queueObject.fn = fn;
-      queueObject.timestamp = new Date();
+      queueObject.timestamp = Date.now() + this.size;
       queueObject.priority = priority;
       queueObject.resolve = resolve;
       queueObject.reject = reject;
-      queueObject.retry = 10;
+      queueObject.retry = 5;
       this.queue.push(queueObject);
       this.queue.sort(this.comparator);
       this.run();
@@ -66,31 +66,41 @@ export class PriorityQueue<P, T> {
     return this.queue[this.queue.length - 1];
   }
 
-private resolveItems(): void {
-  const queueObject = this.first;
-  console.log('IN PROGRESS', queueObject.fn.toString());
+  private resolveItems(): void {
+    const queueObject = this.first;
+    console.log('IN PROGRESS', queueObject.fn.toString(), this.queue.map((item) => item.fn.toString()));
 
-  Promise.resolve(queueObject.fn())
-    .then((result: P) => {
-      console.log('FINISHED', result);
-      queueObject.resolve(result);
-      const unshuffled: QueueObject<P> = this.queue.shift();
-      console.log('NEXT', unshuffled.fn.toString());
-      console.log('ITEMS LEFT', this.size);
-      this.isPending = false;
-      this.run();
-    })
-    .catch((error: Error) => {
-      console.log('RETRY', queueObject.retry);
-      if (queueObject.retry > 0) {
-        queueObject.retry -= 1;
-        // TODO: Implement configurable reconnection delay (and reconnection delay growth factor)
-        setTimeout(() => this.resolveItems(), 1000);
-      } else {
-        queueObject.reject(error);
-      }
-    });
-}
+    Promise.resolve(queueObject.fn())
+      .then((result: P) => {
+        console.log('FINISHED', result);
+        queueObject.resolve(result);
+        this.isPending = false;
+        const unshifted: QueueObject<P> = this.queue.shift();
+        console.log('ITEMS LEFT', this.size);
+        if(unshifted) {
+          console.log('NEXT', unshifted.fn.toString());
+          this.run();
+        }
+      })
+      .catch((error: Error) => {
+      debugger;
+        console.log('ERROR', error);
+        console.log('RETRY', queueObject.retry, queueObject.fn.toString());
+        if (queueObject.retry > 0) {
+          queueObject.retry -= 1;
+          // TODO: Implement configurable reconnection delay (and reconnection delay growth factor)
+          setTimeout(() => this.resolveItems(), 1000);
+        } else {
+          console.log('ADIOS');
+          queueObject.reject(error);
+          this.isPending = false;
+          const unshifted: QueueObject<P> = this.queue.shift();
+          if(unshifted) {
+            this.run();
+          }
+        }
+      });
+  }
 
   private run(): void {
     if (!this.isPending && this.first) {

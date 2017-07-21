@@ -39,7 +39,7 @@ describe('PriorityQueue', () => {
         });
     });
 
-    fit('works with thunked Promises', (done) => {
+    it('works with thunked Promises', (done) => {
       const queue = new PriorityQueue();
 
       Promise.all([
@@ -108,7 +108,7 @@ describe('PriorityQueue', () => {
       };
 
       const unlock = () => {
-        return new Promise(function(resolve) {
+        return new Promise(function (resolve) {
           isLocked = false;
           resolve();
         });
@@ -206,11 +206,19 @@ describe('PriorityQueue', () => {
         });
     });
 
-    it('sorts by date if the priorities are the same', done => {
+    fit('sorts by date if the priorities are the same', done => {
       const queue = new PriorityQueue();
 
-      const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
-      const promise2 = () => Promise.reject('two');
+      const promise1 = () => Promise.resolve('one').then(item => {
+        expect(item).toBe('one');
+        return 'one'
+      });
+
+      const promise2 = () => Promise.reject('two').then(item => {
+        expect(item).toBe('two');
+        return 'two'
+      });
+
       const promise3 = () => Promise.resolve('three').then(item => {
         expect(item).toBe('three');
         done();
