@@ -2,21 +2,24 @@ import Priority from './Priority';
 import QueueObject from './QueueObject';
 
 export default class PriorityQueue<P, T> {
-  private comparator: (a: QueueObject<P>, b: QueueObject<P>) => number;
   private isPending: boolean = false;
   private queue: Array<QueueObject<P>> = [];
 
-  constructor(comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number) {
-    if (typeof comparator === 'function') {
-      this.comparator = comparator;
-    } else {
-      this.comparator = (a: QueueObject<P>, b: QueueObject<P>): number => {
+  constructor(private config: {
+    comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
+    maxRetries?: number,
+  }) {
+    const defaults = {
+      comparator: (a: QueueObject<P>, b: QueueObject<P>): number => {
         if (a.priority === b.priority) {
           return a.timestamp - b.timestamp;
         }
         return <any>b.priority - <any>a.priority;
-      };
-    }
+      },
+      maxRetries: 5
+    };
+
+    this.config = Object.assign(defaults, config);
   }
 
   public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<T> {
@@ -31,9 +34,9 @@ export default class PriorityQueue<P, T> {
       queueObject.priority = priority;
       queueObject.resolve = resolve;
       queueObject.reject = reject;
-      queueObject.retry = 5;
+      queueObject.retry = this.config.maxRetries;
       this.queue.push(queueObject);
-      this.queue.sort(this.comparator);
+      this.queue.sort(this.config.comparator);
       this.run();
     });
   }
