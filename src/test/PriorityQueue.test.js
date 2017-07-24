@@ -198,6 +198,36 @@ describe('PriorityQueue', () => {
     });
   });
 
+  describe('"size"', () => {
+    fit('returns the size of the items left after Promise execution', done => {
+      let isLocked = true;
+
+      const businessLogic = () => {
+        return new Promise(function (resolve, reject) {
+          if (isLocked) {
+            reject(new Error('Promise is locked.'));
+          } else {
+            resolve('Promise successfully executed.');
+          }
+        });
+      };
+
+      const unlock = () => {
+        return new Promise(function (resolve) {
+          isLocked = false;
+          resolve();
+        });
+      };
+
+      const queue = new PriorityQueue({maxRetries: Infinity, retryDelay: 100});
+      queue.add(businessLogic);
+      setTimeout(() => queue.add(unlock, Priority.HIGH).then(() => {
+        expect(queue.size).toBe(0);
+        done();
+      }), 1000);
+    });
+  });
+
   describe('"comparator"', () => {
     it('uses a descending priority order by default', (done) => {
       const queue = new PriorityQueue();
