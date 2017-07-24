@@ -8,7 +8,7 @@ describe('PriorityQueue', () => {
       let isLocked = true;
 
       const businessLogic = () => {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
           if (isLocked) {
             reject(new Error('Promise is locked.'));
           } else {
@@ -137,7 +137,7 @@ describe('PriorityQueue', () => {
       let isLocked = true;
 
       const businessLogic = () => {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
           if (isLocked) {
             reject(new Error('Promise is locked.'));
           } else {
@@ -148,7 +148,7 @@ describe('PriorityQueue', () => {
       };
 
       const unlock = () => {
-        return new Promise(function (resolve) {
+        return new Promise((resolve) => {
           isLocked = false;
           resolve();
         });
@@ -195,6 +195,36 @@ describe('PriorityQueue', () => {
       queue.add(promise2);
 
       setTimeout(() => queue.add(promise3, Priority.HIGH), 1000);
+    });
+  });
+
+  describe('"size"', () => {
+    it('returns the size of the items left after Promise execution', done => {
+      let isLocked = true;
+
+      const businessLogic = () => {
+        return new Promise((resolve, reject) => {
+          if (isLocked) {
+            reject(new Error('Promise is locked.'));
+          } else {
+            resolve('Promise successfully executed.');
+          }
+        });
+      };
+
+      const unlock = () => {
+        return new Promise((resolve) => {
+          isLocked = false;
+          resolve();
+        });
+      };
+
+      const queue = new PriorityQueue({maxRetries: Infinity, retryDelay: 100});
+      setTimeout(() => queue.add(unlock, Priority.HIGH), 1000);
+      queue.add(businessLogic).then(() => {
+        expect(queue.size).toBe(0);
+        done();
+      });
     });
   });
 

@@ -60,22 +60,22 @@ export default class PriorityQueue<P, T> {
 
     Promise.resolve(queueObject.fn())
       .then((result: P) => {
-        queueObject.resolve(result);
-        return true;
+        return [true, () => queueObject.resolve(result)];
       })
       .catch((error: Error) => {
         if (queueObject.retry > 0) {
           queueObject.retry -= 1;
           // TODO: Implement configurable reconnection delay (and reconnection delay growth factor)
           setTimeout(() => this.resolveItems(), this.config.retryDelay);
-          return false;
+          return [false];
         } else {
           queueObject.reject(error);
-          return true;
+          return [true];
         }
       })
-      .then((shouldContinue: boolean) => {
+      .then(([shouldContinue, wrappedResolve]: [boolean, () => any]) => {
         if (shouldContinue) {
+          if (wrappedResolve) wrappedResolve();
           this.isPending = false;
           const unshifted: QueueObject<P> = this.queue.shift();
           if (unshifted) {
