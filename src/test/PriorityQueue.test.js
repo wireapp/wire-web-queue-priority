@@ -22,6 +22,17 @@ describe('PriorityQueue', () => {
       const queue = new PriorityQueue({retryDelay: 3000});
       queue.add(businessLogic);
     });
+
+    it('supports limiting the amount of retries', (done) => {
+      const businessLogic = () => Promise.reject('Error');
+      const queue = new PriorityQueue({maxRetries: 1});
+      queue.add(businessLogic)
+      .then(done.fail)
+      .catch(() => {
+        expect(queue.size).toBe(0);
+        done();
+      });
+    });
   });
 
   describe('"add"', () => {
