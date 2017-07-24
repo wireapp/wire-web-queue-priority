@@ -5,7 +5,7 @@ export default class PriorityQueue<P, T> {
   private config: {
     comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
     maxRetries?: number,
-    retryDelay?: 1000
+    retryDelay?: number
   };
   private isPending: boolean = false;
   private queue: Array<QueueObject<P>> = [];
