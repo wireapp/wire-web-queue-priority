@@ -2,39 +2,38 @@ import Priority from './Priority';
 import QueueObject from './QueueObject';
 
 export default class PriorityQueue<P, T> {
+  private config: {
+    comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
+    maxRetries?: number,
+    reconnectionDelay?: 1000
+  };
   private isPending: boolean = false;
   private queue: Array<QueueObject<P>> = [];
 
-  constructor(private config: {
-    comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
-    maxRetries?: number,
-  }) {
+  constructor(config) {
     const defaults = {
       comparator: (a: QueueObject<P>, b: QueueObject<P>): number => {
-        if (a.priority === b.priority) {
-          return a.timestamp - b.timestamp;
-        }
+        if (a.priority === b.priority) return a.timestamp - b.timestamp;
         return <any>b.priority - <any>a.priority;
       },
-      maxRetries: 5
+      maxRetries: 5,
+      reconnectionDelay: 1000
     };
 
     this.config = Object.assign(defaults, config);
   }
 
   public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<T> {
-    if (typeof fn !== 'function') {
-      fn = () => fn;
-    }
+    if (typeof fn !== 'function') fn = () => fn;
 
     return new Promise((resolve, reject) => {
       const queueObject = new QueueObject<P>();
       queueObject.fn = fn;
-      queueObject.timestamp = Date.now() + this.size;
       queueObject.priority = priority;
-      queueObject.resolve = resolve;
       queueObject.reject = reject;
+      queueObject.resolve = resolve;
       queueObject.retry = this.config.maxRetries;
+      queueObject.timestamp = Date.now() + this.size;
       this.queue.push(queueObject);
       this.queue.sort(this.config.comparator);
       this.run();
@@ -68,7 +67,7 @@ export default class PriorityQueue<P, T> {
         if (queueObject.retry > 0) {
           queueObject.retry -= 1;
           // TODO: Implement configurable reconnection delay (and reconnection delay growth factor)
-          setTimeout(() => this.resolveItems(), 1000);
+          setTimeout(() => this.resolveItems(), this.config.reconnectionDelay);
           return false;
         } else {
           queueObject.reject(error);
