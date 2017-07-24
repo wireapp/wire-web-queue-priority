@@ -2,38 +2,40 @@ import Priority from './Priority';
 import QueueObject from './QueueObject';
 
 export default class PriorityQueue<P, T> {
-  private comparator: (a: QueueObject<P>, b: QueueObject<P>) => number;
+  private config: {
+    comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
+    maxRetries?: number,
+    retryDelay?: 1000
+  };
   private isPending: boolean = false;
   private queue: Array<QueueObject<P>> = [];
 
-  constructor(comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number) {
-    if (typeof comparator === 'function') {
-      this.comparator = comparator;
-    } else {
-      this.comparator = (a: QueueObject<P>, b: QueueObject<P>): number => {
-        if (a.priority === b.priority) {
-          return a.timestamp - b.timestamp;
-        }
+  constructor(config) {
+    const defaults = {
+      comparator: (a: QueueObject<P>, b: QueueObject<P>): number => {
+        if (a.priority === b.priority) return a.timestamp - b.timestamp;
         return <any>b.priority - <any>a.priority;
-      };
-    }
+      },
+      maxRetries: 5,
+      retryDelay: 1000
+    };
+
+    this.config = Object.assign(defaults, config);
   }
 
   public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<T> {
-    if (typeof fn !== 'function') {
-      fn = () => fn;
-    }
+    if (typeof fn !== 'function') fn = () => fn;
 
     return new Promise((resolve, reject) => {
       const queueObject = new QueueObject<P>();
       queueObject.fn = fn;
-      queueObject.timestamp = Date.now() + this.size;
       queueObject.priority = priority;
-      queueObject.resolve = resolve;
       queueObject.reject = reject;
-      queueObject.retry = 5;
+      queueObject.resolve = resolve;
+      queueObject.retry = this.config.maxRetries;
+      queueObject.timestamp = Date.now() + this.size;
       this.queue.push(queueObject);
-      this.queue.sort(this.comparator);
+      this.queue.sort(this.config.comparator);
       this.run();
     });
   }
@@ -65,7 +67,7 @@ export default class PriorityQueue<P, T> {
         if (queueObject.retry > 0) {
           queueObject.retry -= 1;
           // TODO: Implement configurable reconnection delay (and reconnection delay growth factor)
-          setTimeout(() => this.resolveItems(), 1000);
+          setTimeout(() => this.resolveItems(), this.config.retryDelay);
           return false;
         } else {
           queueObject.reject(error);

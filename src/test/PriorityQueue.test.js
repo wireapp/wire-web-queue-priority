@@ -3,6 +3,38 @@ import {Priority, PriorityQueue} from '../../dist/commonjs';
 beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000);
 
 describe('PriorityQueue', () => {
+  describe('"constructor"', () => {
+    it('supports a custom retry delay of 3 seconds', (done) => {
+      let isLocked = true;
+
+      const businessLogic = () => {
+        return new Promise(function (resolve, reject) {
+          if (isLocked) {
+            reject(new Error('Promise is locked.'));
+          } else {
+            resolve('Promise successfully executed.');
+            done();
+          }
+        });
+      };
+
+      setTimeout(() => isLocked = false, 1500);
+      const queue = new PriorityQueue({retryDelay: 3000});
+      queue.add(businessLogic);
+    });
+
+    it('supports limiting the amount of retries', (done) => {
+      const businessLogic = () => Promise.reject('Error');
+      const queue = new PriorityQueue({maxRetries: 1});
+      queue.add(businessLogic)
+      .then(done.fail)
+      .catch(() => {
+        expect(queue.size).toBe(0);
+        done();
+      });
+    });
+  });
+
   describe('"add"', () => {
     it('adds objects', () => {
       const queue = new PriorityQueue();
@@ -192,7 +224,7 @@ describe('PriorityQueue', () => {
 
     it('supports a custom comparator', (done) => {
       const ascendingPriority = (a, b) => a.priority - b.priority;
-      const queue = new PriorityQueue(ascendingPriority);
+      const queue = new PriorityQueue({comparator: ascendingPriority});
       queue.isPending = true;
 
       queue.add(() => 'ape', Priority.HIGH);
