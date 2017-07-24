@@ -5,7 +5,7 @@ export default class PriorityQueue<P, T> {
   private config: {
     comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
     maxRetries?: number,
-    reconnectionDelay?: 1000
+    retryDelay?: 1000
   };
   private isPending: boolean = false;
   private queue: Array<QueueObject<P>> = [];
@@ -17,7 +17,7 @@ export default class PriorityQueue<P, T> {
         return <any>b.priority - <any>a.priority;
       },
       maxRetries: 5,
-      reconnectionDelay: 1000
+      retryDelay: 1000
     };
 
     this.config = Object.assign(defaults, config);
@@ -67,7 +67,7 @@ export default class PriorityQueue<P, T> {
         if (queueObject.retry > 0) {
           queueObject.retry -= 1;
           // TODO: Implement configurable reconnection delay (and reconnection delay growth factor)
-          setTimeout(() => this.resolveItems(), this.config.reconnectionDelay);
+          setTimeout(() => this.resolveItems(), this.config.retryDelay);
           return false;
         } else {
           queueObject.reject(error);
