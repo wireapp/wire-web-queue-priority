@@ -67,15 +67,15 @@ export default class PriorityQueue<P, T> {
           queueObject.retry -= 1;
           // TODO: Implement configurable reconnection delay (and reconnection delay growth factor)
           setTimeout(() => this.resolveItems(), this.config.retryDelay);
-          return [false, undefined];
+          return [false];
         } else {
           queueObject.reject(error);
-          return [true, undefined];
+          return [true];
         }
       })
       .then(([shouldContinue, wrappedResolve]: [boolean, () => any]) => {
         if (shouldContinue) {
-          if(wrappedResolve) wrappedResolve();
+          if (wrappedResolve) wrappedResolve();
           this.isPending = false;
           const unshifted: QueueObject<P> = this.queue.shift();
           if (unshifted) {
