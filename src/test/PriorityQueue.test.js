@@ -137,7 +137,7 @@ describe('PriorityQueue', () => {
       let isLocked = true;
 
       const businessLogic = () => {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
           if (isLocked) {
             reject(new Error('Promise is locked.'));
           } else {
@@ -203,7 +203,7 @@ describe('PriorityQueue', () => {
       let isLocked = true;
 
       const businessLogic = () => {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
           if (isLocked) {
             reject(new Error('Promise is locked.'));
           } else {
