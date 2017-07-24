@@ -199,7 +199,7 @@ describe('PriorityQueue', () => {
   });
 
   describe('"size"', () => {
-    fit('returns the size of the items left after Promise execution', done => {
+    it('returns the size of the items left after Promise execution', done => {
       let isLocked = true;
 
       const businessLogic = () => {
@@ -220,11 +220,11 @@ describe('PriorityQueue', () => {
       };
 
       const queue = new PriorityQueue({maxRetries: Infinity, retryDelay: 100});
-      queue.add(businessLogic);
-      setTimeout(() => queue.add(unlock, Priority.HIGH).then(() => {
+      setTimeout(() => queue.add(unlock, Priority.HIGH), 1000);
+      queue.add(businessLogic).then(() => {
         expect(queue.size).toBe(0);
         done();
-      }), 1000);
+      });
     });
   });
 
