@@ -1,33 +1,29 @@
+import Config from './Config';
+import Item from './Item';
 import Priority from './Priority';
-import QueueObject from './QueueObject';
 
-export default class PriorityQueue<P, T> {
-  private config: {
-    comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
-    maxRetries?: number,
-    retryDelay?: number
+export default class PriorityQueue<P> {
+  private config: Config<P>;
+  private defaults = {
+    comparator: (a: Item<number>, b: Item<number>): number => {
+      if (a.priority === b.priority) return a.timestamp - b.timestamp;
+      return b.priority - a.priority;
+    },
+    maxRetries: 5,
+    retryDelay: 1000
   };
   private isPending: boolean = false;
-  private queue: Array<QueueObject<P>> = [];
+  private queue: Array<Item<P>> = [];
 
-  constructor(config) {
-    const defaults = {
-      comparator: (a: QueueObject<P>, b: QueueObject<P>): number => {
-        if (a.priority === b.priority) return a.timestamp - b.timestamp;
-        return <any>b.priority - <any>a.priority;
-      },
-      maxRetries: 5,
-      retryDelay: 1000
-    };
-
-    this.config = Object.assign(defaults, config);
+  constructor(config: Config<P>) {
+    this.config = Object.assign(this.defaults, config);
   }
 
-  public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<T> {
+  public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<any> {
     if (typeof fn !== 'function') fn = () => fn;
 
     return new Promise((resolve, reject) => {
-      const queueObject = new QueueObject<P>();
+      const queueObject = new Item<P>();
       queueObject.fn = fn;
       queueObject.priority = priority;
       queueObject.reject = reject;
@@ -44,11 +40,11 @@ export default class PriorityQueue<P, T> {
     return this.queue.length;
   }
 
-  public get first(): QueueObject<P> {
+  public get first(): Item<P> {
     return this.queue[0];
   }
 
-  public get last(): QueueObject<P> {
+  public get last(): Item<P> {
     return this.queue[this.queue.length - 1];
   }
 
@@ -59,7 +55,7 @@ export default class PriorityQueue<P, T> {
     }
 
     Promise.resolve(queueObject.fn())
-      .then((result: P) => {
+      .then((result: any) => {
         return [true, () => queueObject.resolve(result)];
       })
       .catch((error: Error) => {
@@ -77,8 +73,8 @@ export default class PriorityQueue<P, T> {
         if (shouldContinue) {
           if (wrappedResolve) wrappedResolve();
           this.isPending = false;
-          const unshifted: QueueObject<P> = this.queue.shift();
-          if (unshifted) {
+          const nextItem: Item<P> = this.queue.shift();
+          if (nextItem) {
             this.resolveItems();
           }
         }

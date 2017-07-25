@@ -1,4 +1,4 @@
-export default class QueueObject<P> {
+export default class Item<P> {
   fn: Function;
   priority: P;
   reject: Function;

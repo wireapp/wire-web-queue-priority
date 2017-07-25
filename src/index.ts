@@ -1,9 +1,9 @@
+import Item from './main/Item';
 import Priority from './main/Priority';
 import PriorityQueue from './main/PriorityQueue';
-import QueueObject from './main/QueueObject';
 
 export = {
+  Item,
   Priority,
   PriorityQueue,
-  QueueObject,
 };
