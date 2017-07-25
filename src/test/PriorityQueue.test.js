@@ -277,7 +277,7 @@ describe('PriorityQueue', () => {
     });
 
     it('continues after the maximum amount of retries', done => {
-      const queue = new PriorityQueue();
+      const queue = new PriorityQueue({maxRetries: 5});
 
       const promise1 = () => Promise.resolve('one').then(item => {
         expect(item).toBe('one');

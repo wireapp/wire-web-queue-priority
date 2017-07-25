@@ -9,7 +9,7 @@ export default class PriorityQueue<P> {
       if (a.priority === b.priority) return a.timestamp - b.timestamp;
       return b.priority - a.priority;
     },
-    maxRetries: 5,
+    maxRetries: Infinity,
     retryDelay: 1000
   };
   private isPending: boolean = false;
