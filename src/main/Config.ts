@@ -1,7 +1,7 @@
-import QueueObject from './QueueObject';
+import Item from './Item';
 
 interface Config<P> {
-  comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
+  comparator?: (a: Item<P>, b: Item<P>) => number,
   maxRetries?: number,
   retryDelay?: number
 }
