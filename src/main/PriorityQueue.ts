@@ -1,29 +1,25 @@
+import Config from './Config';
 import Priority from './Priority';
 import QueueObject from './QueueObject';
 
-export default class PriorityQueue<P, T> {
-  private config: {
-    comparator?: (a: QueueObject<P>, b: QueueObject<P>) => number,
-    maxRetries?: number,
-    retryDelay?: number
+export default class PriorityQueue<P> {
+  private config: Config<P>;
+  private defaults = {
+    comparator: (a: QueueObject<number>, b: QueueObject<number>): number => {
+      if (a.priority === b.priority) return a.timestamp - b.timestamp;
+      return b.priority - a.priority;
+    },
+    maxRetries: 5,
+    retryDelay: 1000
   };
   private isPending: boolean = false;
   private queue: Array<QueueObject<P>> = [];
 
-  constructor(config) {
-    const defaults = {
-      comparator: (a: QueueObject<P>, b: QueueObject<P>): number => {
-        if (a.priority === b.priority) return a.timestamp - b.timestamp;
-        return <any>b.priority - <any>a.priority;
-      },
-      maxRetries: 5,
-      retryDelay: 1000
-    };
-
-    this.config = Object.assign(defaults, config);
+  constructor(config: Config<P>) {
+    this.config = Object.assign(this.defaults, config);
   }
 
-  public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<T> {
+  public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<any> {
     if (typeof fn !== 'function') fn = () => fn;
 
     return new Promise((resolve, reject) => {
@@ -59,7 +55,7 @@ export default class PriorityQueue<P, T> {
     }
 
     Promise.resolve(queueObject.fn())
-      .then((result: P) => {
+      .then((result: any) => {
         return [true, () => queueObject.resolve(result)];
       })
       .catch((error: Error) => {
