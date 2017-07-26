@@ -23,6 +23,7 @@ export default class PriorityQueue<P> {
     if (typeof thunkedPromise !== 'function') thunkedPromise = () => thunkedPromise;
 
     return new Promise((resolve, reject) => {
+      console.log('ADDDDD!', thunkedPromise.toString());
       const queueObject = new Item<P>();
       queueObject.fn = thunkedPromise;
       queueObject.priority = priority;
@@ -48,9 +49,22 @@ export default class PriorityQueue<P> {
     return this.queue[this.queue.length - 1];
   }
 
+  public toString() {
+    let string = '';
+
+    for (const index in this.queue) {
+      const item = this.queue[index];
+      string += `"${index}": ${item.fn.toString()}\r\n`;
+    }
+
+    return string;
+  }
+
   private resolveItems(): void {
+    console.log("QUEUE", this.toString());
     const queueObject = this.first;
     if (!queueObject) {
+      console.log('WIR SIND AM ENDE!');
       return;
     }
 
@@ -65,12 +79,14 @@ export default class PriorityQueue<P> {
           setTimeout(() => this.resolveItems(), this.config.retryDelay);
           return [false];
         } else {
+          console.log('STOOOOOOOPPPP');
           queueObject.reject(error);
           return [true];
         }
       })
       .then(([shouldContinue, wrappedResolve]: [boolean, () => any]) => {
         if (shouldContinue) {
+          console.log('CONTINUE!!!');
           if (wrappedResolve) wrappedResolve();
           this.isPending = false;
           const nextItem: Item<P> = this.queue.shift();

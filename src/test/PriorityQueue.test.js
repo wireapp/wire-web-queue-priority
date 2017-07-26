@@ -181,7 +181,7 @@ describe('PriorityQueue', () => {
       queue.add(promise3, Priority.LOW);
     });
 
-    it('executes a high priority element prior to other running elements ', done => {
+    it('executes a high priority element prior to other running elements', done => {
       const queue = new PriorityQueue();
 
       const promise1 = () => Promise.resolve('one').then(item => expect(item).toBe('one'));
@@ -195,6 +195,47 @@ describe('PriorityQueue', () => {
       queue.add(promise2);
 
       setTimeout(() => queue.add(promise3, Priority.HIGH), 1000);
+    });
+  
+    fit('test', done => {
+      let isLocked = true;
+      const gandalfsWisdom = 'You shall not pass!';
+  
+      const businessLogic = () => {
+        return new Promise((resolve, reject) => {
+          if (isLocked) {
+            reject(new Error(gandalfsWisdom));
+          } else {
+            resolve('Promise successfully executed.');
+            done();
+          }
+        });
+      };
+
+      const unlock = () => {
+        return new Promise((resolve) => {
+          isLocked = false;
+          resolve();
+        });
+      };
+
+      const queue = new PriorityQueue({
+        maxRetries: 0,
+        retryDelay: 1000,
+      });
+      
+      queue.add(businessLogic, 1)
+      .catch((error) => {
+        expect(queue.size).toBe(1);
+        expect(error.message).toBe(gandalfsWisdom);
+        return queue.add(unlock, 2);
+      })
+      .then(() => {
+        console.log('WIR MUESSEN HIER HIN!');
+      })
+      .catch(() => {
+        console.log('WIR DUERFEN ABER NICHT HIER HIN!');
+      });
     });
   });
 
