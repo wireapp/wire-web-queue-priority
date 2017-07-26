@@ -202,6 +202,7 @@ describe('PriorityQueue', () => {
       const gandalfsWisdom = 'You shall not pass!';
   
       const businessLogic = () => {
+        console.log(`ICH WERDE AUSGEFÜHRT. DAS LOCK IST '${isLocked}'`);
         return new Promise((resolve, reject) => {
           if (isLocked) {
             reject(new Error(gandalfsWisdom));
