@@ -19,12 +19,12 @@ export default class PriorityQueue<P> {
     this.config = Object.assign(this.defaults, config);
   }
 
-  public add(fn: Function, priority: P = <any>Priority.MEDIUM): Promise<any> {
-    if (typeof fn !== 'function') fn = () => fn;
+  public add(thunkedPromise: Function, priority: P = <any>Priority.MEDIUM): Promise<any> {
+    if (typeof thunkedPromise !== 'function') thunkedPromise = () => thunkedPromise;
 
     return new Promise((resolve, reject) => {
       const queueObject = new Item<P>();
-      queueObject.fn = fn;
+      queueObject.fn = thunkedPromise;
       queueObject.priority = priority;
       queueObject.reject = reject;
       queueObject.resolve = resolve;
