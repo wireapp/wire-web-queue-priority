@@ -15,7 +15,7 @@ export default class PriorityQueue<P> {
   private isPending: boolean = false;
   private queue: Array<Item<P>> = [];
 
-  constructor(config: Config<P>) {
+  constructor(config?: Config<P>) {
     this.config = Object.assign(this.defaults, config);
   }
 
