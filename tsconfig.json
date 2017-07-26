@@ -12,7 +12,7 @@
     "noImplicitReturns": true,
     "outDir": "dist/commonjs",
     "removeComments": true,
-    "rootDir": "src",
+    "rootDir": "src/main",
     "sourceMap": false,
     "target": "ES5"
   },
