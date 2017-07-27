@@ -88,14 +88,9 @@ export default class PriorityQueue<P> {
     }
   }
 
-  public toString() {
-    let string = '';
-
-    for (const index in this.queue) {
-      const item = this.queue[index];
-      string += `"${index}": ${item.fn.toString().replace(/(\r\n|\n|\r)/gm, '').replace(/\s+/g, ' ')}\r\n`;
-    }
-
-    return string;
+  public toString(): string {
+    return this.queue.map((item: Item<P>, index: number) => {
+      return `"${index}": ${item.fn.toString().replace(/(\r\n|\n|\r|\s+)/gm, '')}`;
+    }).join('\r\n');
   }
 }
