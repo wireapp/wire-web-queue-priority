@@ -12,7 +12,7 @@ export default class PriorityQueue<P> {
     maxRetries: Infinity,
     retryDelay: 1000
   };
-  private isPending: boolean = false;
+  public isPending: boolean = false;
   private queue: Array<Item<P>> = [];
 
   constructor(config?: Config<P>) {
@@ -86,5 +86,11 @@ export default class PriorityQueue<P> {
       this.isPending = true;
       this.resolveItems();
     }
+  }
+
+  public toString(): string {
+    return this.queue.map((item: Item<P>, index: number) => {
+      return `"${index}": ${item.fn.toString().replace(/(\r\n|\n|\r|\s+)/gm, '')}`;
+    }).join('\r\n');
   }
 }
