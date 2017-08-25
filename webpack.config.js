@@ -6,7 +6,7 @@ module.exports = {
     }
   },
   entry: {
-    'test-bundle': `${__dirname}/src/test/index.js`,
+    'test-bundle': `${__dirname}/src/test/browser/index.js`,
   },
   output: {
     path: `${__dirname}/dist`,
