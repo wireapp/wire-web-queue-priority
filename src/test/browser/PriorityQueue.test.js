@@ -1,4 +1,4 @@
-import {Priority, PriorityQueue} from '../../dist/commonjs';
+import {Priority, PriorityQueue} from '../../../dist/commonjs/index';
 
 beforeAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000);
 
