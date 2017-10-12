@@ -1,7 +1,7 @@
 {
   "author": "Wire",
   "dependencies": {
-    "@types/node": "8.0.25"
+    "@types/node": "8.0.34"
   },
   "description": "A promise based dynamic priority queue runner.",
   "devDependencies": {
@@ -13,7 +13,7 @@
     "karma-jasmine-diff-reporter": "1.1.0",
     "karma-sourcemap-loader": "0.3.7",
     "rimraf": "2.6.2",
-    "typescript": "2.4.2",
+    "typescript": "2.5.3",
     "webpack": "3.5.6"
   },
   "license": "GPL-3.0",
