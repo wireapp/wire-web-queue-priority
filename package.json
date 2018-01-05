@@ -1,7 +1,7 @@
 {
   "author": "Wire",
   "dependencies": {
-    "@types/node": "8.0.46"
+    "@types/node": "8.5.7"
   },
   "description": "A promise based dynamic priority queue runner.",
   "devDependencies": {
